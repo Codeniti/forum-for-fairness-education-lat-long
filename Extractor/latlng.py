@@ -52,7 +52,7 @@ def getLatLng(cur, data, schoolname, address, postalcode, apikey):
 
 			location_pos.append('Y')
 
-			location_pos.append(data['School_Id'])
+			location_pos.append(data['schoolid'])
 
 			cur.execute("UPDATE school SET lat=%s, lng=%s, nelat=%s, nelng=%s, swlat=%s, swlng=%s, superceded=%s WHERE Id = %s", 
     				tuple(location_pos)) 
@@ -62,10 +62,10 @@ def getLatLng(cur, data, schoolname, address, postalcode, apikey):
 
 		location_pos.append('N')
 
-		location_pos.append(data['School_Id'])
+		location_pos.append(data['schoolid'])
 
-		cur.execute("UPDATE school SET superceded=%s WHERE Id = %s", 
-				tuple(location_pos))
+		#cur.execute("UPDATE school SET superceded=%s WHERE Id = %s", 
+		#		tuple(location_pos))
 
 def processdata(cur, listp):
 	key = listp.key
@@ -103,7 +103,7 @@ def dividebactchs(cur, keys, limit):
 		ranges_list.append(listp)
 
 	## assigning batch process
-
+	## this can be disturbuted to multiple computers to make it faster
 	for process in ranges_list:
 		processdata(cur, process)
 
