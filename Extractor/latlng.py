@@ -104,6 +104,11 @@ def dividebactchs(cur, keys, limit):
 
 	## assigning batch process
 	## this can be disturbuted to multiple computers to make it faster
+	## use hadoop
+	## links helpful
+	## production http://www.michael-noll.com/tutorials/running-hadoop-on-ubuntu-linux-multi-node-cluster/
+	## development http://www.michael-noll.com/tutorials/running-hadoop-on-ubuntu-linux-single-node-cluster/
+	## code http://www.michael-noll.com/tutorials/writing-an-hadoop-mapreduce-program-in-python/
 	for process in ranges_list:
 		processdata(cur, process)
 
