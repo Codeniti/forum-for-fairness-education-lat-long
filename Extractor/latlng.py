@@ -4,6 +4,28 @@ import json
 import MySQLdb
 
 
+'''
+	So in this process data can be given to each computer in u r network and assign a range of numbers 
+
+	which these computers can be finished in x days equally
+
+	for example if there are 5 systems and 1 million address
+
+	each system gets to process 2 lakh queries
+
+	so as google allows 2500 quries per day
+
+	each take 80 days to query whole data
+
+	As data is said to be 3lakh queries
+
+	we suggest 20 systems
+
+	so u can process all data in 6 days
+
+'''
+
+
 # connect
 db = MySQLdb.connect(host="localhost", user="root", passwd="root", db="schools")
 
@@ -12,6 +34,8 @@ cursor = db.cursor()
 #placename = 'hyderabad'
 
 APIKEY = 'AIzaSyAlzIgKDmSBFH3FZh4W9KWqM4NGkksuOdQ'
+
+#mapper
 
 def getLatLng(cur, data, schoolname, address, postalcode, apikey):
 	APIKEY = apikey
@@ -60,13 +84,14 @@ def getLatLng(cur, data, schoolname, address, postalcode, apikey):
 	else:
 		location_pos = []
 
-		location_pos.append('N')
+		location_pos.append('UN')
 
 		location_pos.append(data['schoolid'])
 
-		#cur.execute("UPDATE school SET superceded=%s WHERE Id = %s", 
-		#		tuple(location_pos))
+		cur.execute("UPDATE school SET superceded=%s WHERE Id = %s", 
+				tuple(location_pos))
 
+#mapper
 def processdata(cur, listp):
 	key = listp.key
 
