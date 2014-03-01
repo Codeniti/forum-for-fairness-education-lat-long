@@ -1,0 +1,7 @@
+<<COMMENT1
+    run crontab -l 
+    add
+    * 18 * * * python latlng.py
+
+    this runs at 6 pm everyday 
+COMMENT1
