@@ -23,6 +23,8 @@ import MySQLdb
 
 	so u can process all data in 6 days
 
+	we can improve this by limiting quries 
+
 '''
 
 
