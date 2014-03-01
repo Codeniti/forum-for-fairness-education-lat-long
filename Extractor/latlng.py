@@ -29,7 +29,7 @@ import MySQLdb
 
 
 # connect
-db = MySQLdb.connect(host="localhost", user="root", passwd="root", db="schools")
+db = MySQLdb.connect(unix_socket = '/Applications/MAMP/tmp/mysql/mysql.sock', host="localhost", port=8890, user="root", passwd="root", db="schools")
 
 cursor = db.cursor()
 
@@ -61,48 +61,65 @@ def getLatLng(cur, data, schoolname, address, postalcode, apikey):
 	info = json.loads(info)
 
 	if info['status'] == 'OK':
+			info = info["results"][0]
+
 			location = info['geometry']['location']
-			northeast = info['geometry']['northeast']
-			southwest = info['geometry']['southwest']
 
 			location_pos = []
 
 			location_pos.append(location['lat'])
 			location_pos.append(location['lng'])
 
-			location_pos.append(northeast['lat'])
-			location_pos.append(northeast['lng'])
+			if info['geometry']["viewport"]['northeast']:
+				northeast = info['geometry']["viewport"]['northeast']
+				location_pos.append(northeast['lat'])
+				location_pos.append(northeast['lng'])
+			else:
+				location_pos.append('NULL')
+				location_pos.append('NULL')
 
-			location_pos.append(southwest['lat'])
-			location_pos.append(southwest['lng'])
 
-			location_pos.append('Y')
+			if info['geometry']["viewport"]['southwest']:
+				southwest = info['geometry']["viewport"]['southwest']
+				location_pos.append(southwest['lat'])
+				location_pos.append(southwest['lng'])
+			else:
+				location_pos.append('NULL')
+				location_pos.append('NULL')
 
-			location_pos.append(data['schoolid'])
+			location_pos.append('1')
 
-			cur.execute("UPDATE school SET lat=%s, lng=%s, nelat=%s, nelng=%s, swlat=%s, swlng=%s, superceded=%s WHERE Id = %s", 
+			location_pos.append(data[0])
+
+			print location_pos
+
+			cur.execute("UPDATE school SET lat=%s, lng=%s, nelat=%s, nelng=%s, swlat=%s, swlng=%s, superceded=%s WHERE schoolid = %s", 
     				tuple(location_pos)) 
 
 	else:
+		info = info["results"][0]
+
 		location_pos = []
 
-		location_pos.append('UN')
+		location_pos.append('-1')
 
-		location_pos.append(data['schoolid'])
+		location_pos.append(data[0])
 
-		cur.execute("UPDATE school SET superceded=%s WHERE Id = %s", 
+		cur.execute("UPDATE school SET superceded=%s WHERE schoolid = %s", 
 				tuple(location_pos))
 
 #mapper
 def processdata(cur, listp):
-	key = listp.key
+	key = listp['key']
 
-	for data in listp.data:
-		schoolname = data['schoolname']
-		address = data['address']
-		postalcode = data['postalcode']
+	for data in listp['data']:
+		schoolname = data[1]
+		address = data[2]
+		postalcode = data[3]
 
 		getLatLng(cur, data, schoolname, address, postalcode, key) 
+
+		break
 
 
  
@@ -113,21 +130,25 @@ def dividebactchs(cur, keys, limit):
 
 	start = 0
 
+	print 'starting acces'
+
 	# execute SQL select statement
-	cur.execute("SELECT * FROM school where superceded = 'N' LIMIT " . str(no_people * limit))
+	cur.execute("SELECT * FROM school where superceded = 0 LIMIT " + str(no_people * limit))
 
 	rows = cur.fetchall()
 
 	for i in range(no_people):
 		listp = {}
-		listp.key = keys[i]
+		listp['key'] = keys[i]
 
 		start = start + i * (limit)
-		end = listp.start + (limit)
+		end = start + (limit)
 
-		listp.data = rows[start:end]
+		listp['data'] = rows[start:end]
 
 		ranges_list.append(listp)
+
+	print ranges_list
 
 	## assigning batch process
 	## this can be disturbuted to multiple computers to make it faster
@@ -139,4 +160,6 @@ def dividebactchs(cur, keys, limit):
 	for process in ranges_list:
 		processdata(cur, process)
 
+keys = [APIKEY]
+dividebactchs(cursor, keys, 100)
 
