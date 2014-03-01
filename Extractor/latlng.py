@@ -30,6 +30,7 @@ import MySQLdb
 
 # connect
 db = MySQLdb.connect(unix_socket = '/Applications/MAMP/tmp/mysql/mysql.sock', host="localhost", port=8890, user="root", passwd="root", db="schools")
+db.autocommit(True)
 
 cursor = db.cursor()
 
@@ -89,7 +90,7 @@ def getLatLng(cur, data, schoolname, address, postalcode, apikey):
 
 			location_pos.append('1')
 
-			location_pos.append(data[0])
+			location_pos.append(str(data[0]))
 
 			print location_pos
 
@@ -103,7 +104,7 @@ def getLatLng(cur, data, schoolname, address, postalcode, apikey):
 
 		location_pos.append('-1')
 
-		location_pos.append(data[0])
+		location_pos.append(str(data[0]))
 
 		cur.execute("UPDATE school SET superceded=%s WHERE schoolid = %s", 
 				tuple(location_pos))
@@ -118,8 +119,6 @@ def processdata(cur, listp):
 		postalcode = data[3]
 
 		getLatLng(cur, data, schoolname, address, postalcode, key) 
-
-		break
 
 
  
